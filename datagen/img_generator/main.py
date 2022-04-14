@@ -1,8 +1,8 @@
 from time  import sleep
 from pose_sampler import *
 
-num_samples = 5000
-dataset_path = gp_data_dir
+num_samples = 30000
+dataset_path = gp_concat_img_data_dir
 
 # check if output folder exists
 if not os.path.isdir(dataset_path):
@@ -11,13 +11,13 @@ if not os.path.isdir(dataset_path):
     os.makedirs(img_dir)
 else:
     print("Error: path already exists.")
-    flag= input("Enter Y/y to confirm folder deletion and recreation or any letter to abort: ")
-    if flag == 'y' or flag == 'Y' :
-        shutil.rmtree(dataset_path)
-        os.makedirs(dataset_path)
-        img_dir = os.path.join(dataset_path, 'images')
-        os.makedirs(img_dir)
-    else: exit()
+    # flag= input("Enter Y/y to confirm folder deletion and recreation or any letter to abort: ")
+    # if flag == 'y' or flag == 'Y' :
+    #     shutil.rmtree(dataset_path)
+    #     os.makedirs(dataset_path)
+    #     img_dir = os.path.join(dataset_path, 'images')
+    #     os.makedirs(img_dir)
+    # else: exit()
 
 pose_sampler = PoseSampler(num_samples, dataset_path)
 

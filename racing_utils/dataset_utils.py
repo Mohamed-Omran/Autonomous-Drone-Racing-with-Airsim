@@ -112,6 +112,11 @@ def de_normalize_gate(pose):
     return pose
 
 def read_images(data_dir, res, max_size=None):
+    """
+    Reads all png images in data_dir/images/.
+    
+    Returns np array of dimensions (max_size, res, res, 3)
+    """
     print('Going to read image file list')
     files_list = glob.glob(os.path.join(data_dir, 'images/*.png'))
     print('Done. Starting sorting.')
@@ -142,6 +147,17 @@ def read_images(data_dir, res, max_size=None):
     return images_np
 
 def create_dataset_csv(data_dir, batch_size, res, max_size=None):
+    """
+    Reads all png images in data_dir/images/ and the csv file in data_dir/
+
+    Returns a normalized, between [-1, 1], tf format dataset and prepare batches
+
+     img_train, img_test, dist_train, dist_test = train_test_split(images_np, raw_table, test_size=0.1, random_state=42)
+    
+    ds_train = tf.data.Dataset.from_tensor_slices((img_train, dist_train)).batch(batch_size)
+
+    ds_test = tf.data.Dataset.from_tensor_slices((img_test, dist_test)).batch(batch_size)
+    """
     print('Going to read file list')
     files_list = glob.glob(os.path.join(data_dir, 'images/*.png'))
     print('Done. Starting sorting.')
@@ -198,11 +214,15 @@ def create_dataset_csv(data_dir, batch_size, res, max_size=None):
     return ds_train, ds_test
 
 def create_unsup_dataset_multiple_sources(data_dir_list, batch_size, res):
+    """Reads ONLY all png images in data_dir_list/images/ directories and creats FAKE gate poses
+
+    Returns a normalized, between [-1, 1], for the images and the fake -1 gate poses as tf format dataset and prepare batches"""
     # load all the images in one single large dataset
     images_np = np.empty((0,res,res,3)).astype(np.float32)
     for data_dir in data_dir_list:
         img_array = read_images(data_dir, res, max_size=None)
         images_np = np.concatenate((images_np, img_array), axis=0)
+    
     # make fake distances to gate as -1
     num_items = images_np.shape[0]
     print('Real_life dataset has {} images total'.format(num_items))
@@ -215,6 +235,9 @@ def create_unsup_dataset_multiple_sources(data_dir_list, batch_size, res):
     return ds_train, ds_test
 
 def create_test_dataset_csv(data_dir, res, read_table=True):
+    """Reads all png images in data_dir/images/ and the csv file in data_dir/
+
+    Returns a normalized, between [-1, 1], np Array of images of size (max_size, res, res, 3) and a NOT normalize np array of gate poses of size (max_size, 4)"""
     # prepare image dataset from a folder
     print('Going to read file list')
     files_list = glob.glob(os.path.join(data_dir, 'images/*.png'))

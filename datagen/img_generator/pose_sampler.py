@@ -19,8 +19,8 @@ sys.path.insert(0, import_path)
 from racing_utils.paths import *
 from racing_utils.geom_utils import randomGatePose, randomQuadPose
 
-GATE_YAW_RANGE = [-np.pi, np.pi]  # world theta gate
 # GATE_YAW_RANGE = [-1, 1]  # world theta gate -- this range is btw -pi and +pi
+GATE_YAW_RANGE = [-np.pi, np.pi]  # world theta gate
 UAV_X_RANGE = [-30, 30] # world x quad
 UAV_Y_RANGE = [-30, 30] # world y quad
 UAV_Z_RANGE = [-2, -3] # world z quad
@@ -41,7 +41,7 @@ class PoseSampler:
         self.num_samples = num_samples
         self.base_path = dataset_path
         self.csv_path = os.path.join(self.base_path, 'gate_training_data.csv')
-        self.curr_idx = 0
+        self.curr_idx = 10000
         self.with_gate = with_gate
         self.client = airsim.MultirotorClient()
 
@@ -105,6 +105,8 @@ class PoseSampler:
             img1d = np.fromstring(image_response.image_data_uint8, dtype=np.uint8)  # get numpy array
             img_rgb = img1d.reshape(image_response.height, image_response.width, 3)  # reshape array to 4 channel image array H X W X 3
             cv2.imwrite(os.path.join(self.base_path, 'images', str(self.curr_idx).zfill(len(str(self.num_samples))) + '.png'), img_rgb)  # write to png
+            # cv2.imwrite(os.path.join(self.base_path, 'images', str(self.curr_idx).zfill(len(str(9999))) + '.png'), img_rgb)  # write to png
+
         else:
             print('ERROR IN IMAGE SIZE -- NOT SUPPOSED TO HAPPEN')
 

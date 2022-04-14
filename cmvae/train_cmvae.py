@@ -11,8 +11,8 @@ import racing_utils
 from racing_utils.paths import *
 
 # DEFINE TRAINING META PARAMETERS
-data_dir = gp_img_data_dir
-output_dir = gp_cmvae_output_dir
+data_dir = ppr_img_data_dir
+output_dir = ppr_cmvae_output_dir
 batch_size = 32
 epochs = 50
 n_z = 10

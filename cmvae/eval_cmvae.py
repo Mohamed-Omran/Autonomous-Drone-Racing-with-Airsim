@@ -13,10 +13,10 @@ import racing_models.cmvae
 import racing_utils
 from racing_utils.paths import *
 # DEFINE TESTING META PARAMETERS
-data_dir = gp_img_data_dir
+data_dir = ppr_img_data_dir
 read_table = True
 latent_space_constraints = True
-weights_path = ppr_cmvae_output_dir + "/cmvae_model_40.ckpt"
+weights_path = ppr_cmvae_output_dir + "/cmvae_model_45.ckpt"
 
 n_z = 10
 img_res = 64
@@ -163,7 +163,7 @@ z_values = racing_utils.geom_utils.interp_vector(z_range_mural[0], z_range_mural
 for i in range(1, z_num_mural*n_z + 1):
     fig3.add_subplot(rows, columns, i)
     z = np.zeros((1, n_z)).astype(np.float32)
-    z[0, (i-1)/columns] = z_values[i%columns-1]
+    z[0, (i-1)//columns] = z_values[i%columns-1] # TODO: check the // 
     # print (z)
     img_recon_interp, gate_recon_interp = model.decode(z, mode=0)
     img_recon_interp = img_recon_interp.numpy()
