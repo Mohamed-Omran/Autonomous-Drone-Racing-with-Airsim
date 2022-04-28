@@ -6,3 +6,6 @@ ppr_cmvae_output_dir = "D:/ppr_files/model_output/cmvae_con"
 gp_concat_img_data_dir = "D:/gp_files/concat/img_dataset"
 ws_img_data_dir = "/home/dell/Drone_Project/soccer_50k"
 ws_cmvae_output_dir = "/home/dell/Drone_Project/models_outputs/cmvae_con"
+
+ws_img_data_250k_dir = "/home/dell/Drone_Project/datasets/img_data_250K"
+ws_cmvae_250K_output_dir = "/home/dell/Drone_Project/models_outputs/cmvae_con_250k"
