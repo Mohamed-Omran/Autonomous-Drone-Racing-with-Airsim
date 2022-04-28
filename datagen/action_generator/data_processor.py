@@ -208,7 +208,7 @@ if __name__ == "__main__":
     #     args.result_images,
     #     args.images_folder
     # )
-    base_path = '/home/rb/all_files/il_datasets/bc_test'
+    base_path = '/home/mohssen/Documents/AirSim/Trial'
     run(
         os.path.join(base_path, 'moveOnSpline_vel_cmd.txt'),
         os.path.join(base_path, 'images.txt'),
