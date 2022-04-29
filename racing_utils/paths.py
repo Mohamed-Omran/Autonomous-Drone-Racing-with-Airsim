@@ -9,3 +9,5 @@ ws_cmvae_output_dir = "/home/dell/Drone_Project/models_outputs/cmvae_con"
 
 ws_img_data_250k_dir = "/home/dell/Drone_Project/datasets/img_data_250K"
 ws_cmvae_250K_output_dir = "/home/dell/Drone_Project/models_outputs/cmvae_con_250k"
+ws_il_data_dir = "/home/dell/Drone_Project/datasets/il_data"
+ws_bc_latent_uncon_output_dir = "/home/dell/Drone_Project/models_outputs/bc_latent_uncon"

@@ -8,19 +8,17 @@ import_path = os.path.join(curr_dir, '..')
 sys.path.insert(0, import_path)
 import racing_models
 import racing_utils
+from racing_utils.paths import *
 
 ###########################################
 
 # DEFINE TRAINING META PARAMETERS
-base_path = '/home/rb/all_files'
-data_dir_list = ['/home/rb/all_files/il_datasets/bc_v5_n0',
-                 '/home/rb/all_files/il_datasets/bc_v5_n1',
-                 '/home/rb/all_files/il_datasets/bc_v5_n2',
-                 '/home/rb/all_files/il_datasets/bc_v5_n3']
-output_dir = '/home/rb/all_files/model_outputs/bc_test'
+base_path = '/home/dell/Drone_Project/'
+data_dir_list = [ws_il_data_dir]
+output_dir = ws_bc_latent_uncon_output_dir
 
 training_mode = 'latent'  # 'full' or 'latent' or 'reg'
-cmvae_weights_path = '/home/rb/all_files/model_outputs/cmvae_con/cmvae_model_40.ckpt'
+cmvae_weights_path = ws_cmvae_250K_output_dir + '/cmvae_model_40.ckpt'
 # cmvae_weights_path = '/home/rb/all_files/model_outputs/cmvae_unc/cmvae_model_65.ckpt'
 # cmvae_weights_path = '/home/rb/all_files/model_outputs/cmvae_img/cmvae_model_45.ckpt'
 

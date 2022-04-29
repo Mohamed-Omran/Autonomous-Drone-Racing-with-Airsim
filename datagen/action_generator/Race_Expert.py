@@ -47,7 +47,7 @@ class DroneRacingDataGenerator(object):
         # should be same as settings.json
         self.gate_names = []
         self.drone_name = drone_name
-        self.track_name = '/home/momo/Desktop/GP/Src/datagen/action_generator/tracks/interpolated_8.csv'
+        self.track_name = '/home/dell/Drone_Project/src/Autonomous-Drone-Racing-with-Airsim/datagen/action_generator/tracks/interpolated_8.csv'
         self.last_future = []
         self.start_end = 0.0
         self.passed = True
@@ -89,14 +89,14 @@ class DroneRacingDataGenerator(object):
         time.sleep(0.01)
 
         self.takeoff_with_moveOnSpline(x=56, y=7, z=-13, vel_max=self.vel_max, acc_max=self.acc_max)
-        self.client.rotateToYawAsync(-90, self.drone_name)
+        # self.client.rotateToYawAsync(-90, self.drone_name)
         time.sleep(2)
 
     def start_training_data_generator(self, level_name='Soccer_Field_Easy'):
         # Environment Initialization
         self.load_level(level_name)
         open_track = Extractor.ReadGates(self.track_name)
-        closing = Extractor.ReadGates('/home/momo/Desktop/GP/Src/datagen/action_generator/tracks/Closing_8.csv')
+        closing = Extractor.ReadGates('/home/dell/Drone_Project/src/Autonomous-Drone-Racing-with-Airsim/datagen/action_generator/tracks/Closing_8.csv')
         self.base_track = open_track + closing
         self.track_gate_poses = Extractor.DistortCheckeredGates(self.base_track, -0.5, 0.5)
         self.gate_names = self.name_the_gates(len(self.track_gate_poses))

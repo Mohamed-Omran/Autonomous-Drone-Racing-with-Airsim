@@ -7,6 +7,12 @@ from scipy.spatial.transform import Rotation as R
 from scipy.spatial.transform import Slerp
 import numpy as np
 
+# import utils
+curr_dir = os.path.dirname(os.path.abspath(__file__))
+import_path = os.path.join(curr_dir, '..', '..')
+sys.path.insert(0, import_path)
+from racing_utils.paths import *
+
 TIME_COLUMN = 'TimeStamp'
 INTERPOLABLE_VEL_COLUMNS = ['vx', 'vy', 'vz', 'vyaw']
 INTERPOLABLE_QUAT_COLUMNS = ['odom.quaternion.x', 'odom.quaternion.y', 'odom.quaternion.z', 'odom.quaternion.w']
@@ -208,7 +214,7 @@ if __name__ == "__main__":
     #     args.result_images,
     #     args.images_folder
     # )
-    base_path = '/home/mohssen/Documents/AirSim/Trial'
+    base_path = ws_il_data_dir
     run(
         os.path.join(base_path, 'moveOnSpline_vel_cmd.txt'),
         os.path.join(base_path, 'images.txt'),
