@@ -1,18 +1,17 @@
-from __future__ import division
+from _future_ import division
 import time
 import numpy as np
 import vel_regressor
 import cv2
 import math
 import tensorflow as tf
-
+import Extractor
 import os, sys
 import airsimdroneracingvae
 import airsimdroneracingvae.types
 import airsimdroneracingvae.utils
-
 # import utils
-curr_dir = os.path.dirname(os.path.abspath(__file__))
+curr_dir = os.path.dirname(os.path.abspath(_file_))
 import_path = os.path.join(curr_dir, '..')
 sys.path.insert(0, import_path)
 import racing_utils
@@ -23,7 +22,7 @@ import racing_utils
 # DEFINE DEPLOYMENT META PARAMETERS
 
 # policy options: bc_con, bc_unc, bc_img, bc_reg, bc_full
-policy_type = 'bc_con'
+policy_type = 'bc_unc'
 gate_noise = 1.0
 
 ###########################################
@@ -49,7 +48,7 @@ def move_drone(client, vel_cmd):
     client.moveByVelocityAsync(vel_cmd[0], vel_cmd[1], vel_cmd[2], duration=0.1, yaw_mode=yaw_mode)
 
 
-print(os.path.abspath(airsimdroneracingvae.__file__))
+print(os.path.abspath(airsimdroneracingvae._file_))
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
@@ -59,7 +58,7 @@ os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
 # tf.debugging.set_log_device_placement(True)
 
 
-if __name__ == "__main__":
+if _name_ == "_main_":
     # set airsim client
     client = airsimdroneracingvae.MultirotorClient()
     client.confirmConnection()
@@ -82,11 +81,18 @@ if __name__ == "__main__":
     # spawn red gates in appropriate locations
     # gate_poses = racing_utils.trajectory_utils.RedGateSpawner(client, num_gates=1, noise_amp=0)
     offset = [0, 0, -0]
-    gate_poses = racing_utils.trajectory_utils.RedGateSpawnerCircle(client, num_gates=8, radius=8, radius_noise=gate_noise, height_range=[0, -gate_noise], track_offset=offset)
-
+    #gate_poses = racing_utils.trajectory_utils.RedGateSpawnerCircle(client, num_gates=8, radius=8, radius_noise=gate_noise, height_range=[0, -gate_noise], track_offset=offset)
+    def create_track(gate_type, gate_poses, scale):
+        ''' Creates a track '''
+        for i, poses in enumerate(gate_poses):
+            client.simSpawnObject('Gate_' +str(i), gate_type,
+                                       poses, scale)
+            time.sleep(0.05)
+    gate_poses = Extractor.ReadGates('Qualifier_Tier_3.csv')
+    create_track('CheckeredDroneGate16x16', gate_poses, 1)
     # wait till takeoff complete
     vel_max = 5.0
-    acc_max = 2.0
+    acc_max = 20.0
 
     time.sleep(1.0)
 
@@ -96,8 +102,8 @@ if __name__ == "__main__":
     # takeoff_position = airsimdroneracingvae.Vector3r(25, -7, -1.5)
     # takeoff_orientation = airsimdroneracingvae.Vector3r(-.2, 0.9, 0)
 
-    takeoff_position = airsimdroneracingvae.Vector3r(5.5, -4, -1.5+offset[2])
-    takeoff_orientation = airsimdroneracingvae.Vector3r(0.4, 0.9, 0)
+    takeoff_position = airsimdroneracingvae.Vector3r(53.5, 7.5, -13.5)
+    takeoff_orientation = airsimdroneracingvae.Vector3r(0, 0, 0)
 
     # takeoff_position = airsimdroneracingvae.Vector3r(0, 0, -2)
     # takeoff_position = airsimdroneracingvae.Vector3r(0, 0, 10)
@@ -118,8 +124,8 @@ if __name__ == "__main__":
     elif policy_type == 'bc_unc':
         training_mode = 'latent'
         latent_space_constraints = False
-        bc_weights_path = '/home/rb/all_files/model_outputs/bc_unc/bc_model_150.ckpt'
-        feature_weights_path = '/home/rb/all_files/model_outputs/cmvae_unc/cmvae_model_45.ckpt'
+        bc_weights_path = '/home/mohssen/Downloads/GP-model-output-master/bc_latent_uncon/bc_model_150.ckpt'
+        feature_weights_path = '/home/mohssen/Downloads/GP-model-output-master/cmvae_con_250k/cmvae_model_40.ckpt'
     elif policy_type == 'bc_img':
         training_mode = 'latent'
         latent_space_constraints = True
@@ -149,7 +155,7 @@ if __name__ == "__main__":
         img_batch_1, cam_pos, cam_orientation = process_image(client, img_res)
         elapsed_time_net = time.time() - start_time
         times_net[count] = elapsed_time_net
-        p_o_b = airsimdroneracingvae.types.Pose(cam_pos, cam_orientation)
+        p_o_b = airsimdroneracingvae.Pose(cam_pos, cam_orientation)
         vel_cmd = vel_regressor.predict_velocities(img_batch_1, p_o_b)
         # print(vel_cmd)
         # print('Before sending vel cmd')
