@@ -23,7 +23,7 @@ data_dir_list = [ws_il_data_dir + "/../il_data_fast/v1",
 output_dir = ws_bc_latent_fast_uncon_output_dir
 
 training_mode = 'latent'  # 'full' or 'latent' or 'reg'
-cmvae_weights_path = ws_cmvae_250K_output_dir + '/cmvae_model_40.ckpt'
+cmvae_weights_path = ws_cmvae_250K_output_dir + '/cmvae_model_50.ckpt'
 # cmvae_weights_path = '/home/rb/all_files/model_outputs/cmvae_unc/cmvae_model_65.ckpt'
 # cmvae_weights_path = '/home/rb/all_files/model_outputs/cmvae_img/cmvae_model_45.ckpt'
 
