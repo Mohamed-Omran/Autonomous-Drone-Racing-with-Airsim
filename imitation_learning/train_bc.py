@@ -35,7 +35,7 @@ cmvae_weights_path = ws_cmvae_250K_output_dir + '/cmvae_model_50.ckpt'
 
 n_z = 10
 batch_size = 32
-epochs = 400
+epochs = 500
 img_res = 64
 max_size = None  # default is None
 learning_rate = 1e-2  # 1e-2 for latent, 1e-3 for full
