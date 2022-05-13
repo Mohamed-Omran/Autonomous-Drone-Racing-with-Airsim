@@ -214,7 +214,7 @@ if __name__ == "__main__":
     #     args.result_images,
     #     args.images_folder
     # )
-    base_path = ws_il_data_dir
+    base_path = ws_il_data_dir +"/../il_data_fast/v4"
     run(
         os.path.join(base_path, 'moveOnSpline_vel_cmd.txt'),
         os.path.join(base_path, 'images.txt'),

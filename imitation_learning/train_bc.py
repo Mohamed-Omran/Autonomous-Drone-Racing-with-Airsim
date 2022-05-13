@@ -1,6 +1,8 @@
 import tensorflow as tf
 import os
 import sys
+import numpy as np
+
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 # imports
@@ -13,9 +15,12 @@ from racing_utils.paths import *
 ###########################################
 
 # DEFINE TRAINING META PARAMETERS
-base_path = '/home/dell/Drone_Project/'
-data_dir_list = [ws_il_data_dir]
-output_dir = ws_bc_latent_uncon_output_dir
+base_path = '/home/dell/Drone_Project/datasets'
+data_dir_list = [ws_il_data_dir + "/../il_data_fast/v1",
+                 ws_il_data_dir + "/../il_data_fast/v2",
+                 ws_il_data_dir + "/../il_data_fast/v3",
+                 ws_il_data_dir + "/../il_data_fast/v4"]
+output_dir = ws_bc_latent_fast_uncon_output_dir
 
 training_mode = 'latent'  # 'full' or 'latent' or 'reg'
 cmvae_weights_path = ws_cmvae_250K_output_dir + '/cmvae_model_40.ckpt'
@@ -34,6 +39,7 @@ epochs = 400
 img_res = 64
 max_size = None  # default is None
 learning_rate = 1e-2  # 1e-2 for latent, 1e-3 for full
+
 
 ###########################################
 # CUSTOM FUNCTIONS
@@ -80,6 +86,7 @@ def test(images, labels, training_mode):
     recon_loss = tf.reduce_mean(compute_loss(labels, predictions))
     test_loss_rec_v(recon_loss)
 
+
 ###########################################
 
 
@@ -95,7 +102,8 @@ os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
 # load dataset
 print('Starting dataset')
 # train_ds, test_ds = racing_utils.dataset_utils.create_dataset_txt(data_dir, batch_size, img_res, data_mode='train')
-train_ds, test_ds = racing_utils.dataset_utils.create_dataset_multiple_sources(data_dir_list, batch_size, img_res, data_mode='train', base_path=base_path)
+train_ds, test_ds = racing_utils.dataset_utils.create_dataset_multiple_sources(data_dir_list, batch_size, img_res,
+                                                                               data_mode='train', base_path=base_path)
 print('Done with dataset')
 
 # create models
@@ -126,6 +134,7 @@ if not os.path.isdir(output_dir):
 # train
 print('Start training ...')
 flag = True
+loss_list = []
 for epoch in range(epochs):
     # print('MODE NOW: {}'.format(mode))
     for train_images, train_labels in train_ds:
@@ -145,6 +154,11 @@ for epoch in range(epochs):
         tf.summary.scalar('test_loss_rec_gate', test_loss_rec_v.result(), step=epoch)
     print('Epoch {} | Train L_gate: {} | Test L_gate: {}'
           .format(epoch, train_loss_rec_v.result(), test_loss_rec_v.result()))
+    l = [epoch,
+         train_loss_rec_v.result(),
+         test_loss_rec_v.result()]
+    loss_list.append(l)
     reset_metrics()  # reset all the accumulators of metrics
 
+np.savetxt("losses.csv", loss_list, delimiter=",", fmt='% s')
 print('bla')

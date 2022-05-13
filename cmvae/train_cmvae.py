@@ -1,6 +1,8 @@
 import tensorflow as tf
 import os
 import sys
+import numpy as np
+
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 # imports
@@ -11,15 +13,16 @@ import racing_utils
 from racing_utils.paths import *
 
 # DEFINE TRAINING META PARAMETERS
-data_dir = ppr_img_data_dir
-output_dir = ppr_cmvae_output_dir
+data_dir = "/home/dell/Drone_Project/datasets/img_data_250K"
+output_dir = "/home/dell/Drone_Project/models_outputs/cmvae_con_250k"
 batch_size = 32
-epochs = 50
+epochs = 51
 n_z = 10
 latent_space_constraints = True
 img_res = 64
 max_size = None  # default is None
 learning_rate = 1e-4
+
 
 # CUSTOM TF FUNCTIONS
 @tf.function
@@ -32,6 +35,7 @@ def calc_weighted_loss_img(img_recon, images_np):
     loss = tf.reduce_sum(weighted_error_sq)
     return loss
 
+
 def reset_metrics():
     train_loss_rec_img.reset_states()
     train_loss_rec_gate.reset_states()
@@ -39,6 +43,7 @@ def reset_metrics():
     test_loss_rec_img.reset_states()
     test_loss_rec_gate.reset_states()
     test_loss_kl.reset_states()
+
 
 @tf.function
 def regulate_weights(epoch):
@@ -67,6 +72,7 @@ def regulate_weights(epoch):
         w_gate = 1.0
     return beta, w_img, w_gate
 
+
 @tf.function
 def compute_loss_unsupervised(img_gt, gate_gt, img_recon, gate_recon, means, stddev, mode):
     # compute reconstruction loss
@@ -74,7 +80,8 @@ def compute_loss_unsupervised(img_gt, gate_gt, img_recon, gate_recon, means, std
         img_loss = tf.losses.mean_squared_error(img_gt, img_recon)
         # img_loss = tf.losses.mean_absolute_error(img_gt, img_recon)
         gate_loss = tf.losses.mean_squared_error(gate_gt, gate_recon)
-        kl_loss = -0.5 * tf.reduce_mean(tf.reduce_sum((1 + stddev - tf.math.pow(means, 2) - tf.math.exp(stddev)), axis=1))
+        kl_loss = -0.5 * tf.reduce_mean(
+            tf.reduce_sum((1 + stddev - tf.math.pow(means, 2) - tf.math.exp(stddev)), axis=1))
     # elif mode == 1:
     #     # labels = tf.reshape(labels, predictions.shape)
     #     # recon_loss = tf.losses.mean_squared_error(labels, predictions)
@@ -84,6 +91,7 @@ def compute_loss_unsupervised(img_gt, gate_gt, img_recon, gate_recon, means, std
     # print('Lrec: {}'.format(recon_loss))
     # copute KL loss: D_KL(Q(z|X,y) || P(z|X))
     return img_loss, gate_loss, kl_loss
+
 
 @tf.function
 def train(img_gt, gate_gt, epoch, mode):
@@ -102,13 +110,14 @@ def train(img_gt, gate_gt, epoch, mode):
     #     model.p_gate.trainable = True
     with tf.GradientTape() as tape:
         img_recon, gate_recon, means, stddev, z = model(img_gt, mode)
-        img_loss, gate_loss, kl_loss = compute_loss_unsupervised(img_gt, gate_gt, img_recon, gate_recon, means, stddev, mode)
+        img_loss, gate_loss, kl_loss = compute_loss_unsupervised(img_gt, gate_gt, img_recon, gate_recon, means, stddev,
+                                                                 mode)
         img_loss = tf.reduce_mean(img_loss)
         gate_loss = tf.reduce_mean(gate_loss)
         beta, w_img, w_gate = regulate_weights(epoch)
         # weighted_loss_img = calc_weighted_loss_img(img_recon, img_gt)
         if mode == 0:
-            total_loss = w_img*img_loss + w_gate*gate_loss + beta*kl_loss
+            total_loss = w_img * img_loss + w_gate * gate_loss + beta * kl_loss
             # total_loss = w_img * img_loss + beta * kl_loss
             # total_loss = weighted_loss_img + gate_loss + beta * kl_loss
             # total_loss = img_loss
@@ -124,16 +133,19 @@ def train(img_gt, gate_gt, epoch, mode):
     gradients = tape.gradient(total_loss, model.trainable_variables)
     optimizer.apply_gradients(zip(gradients, model.trainable_variables))
 
+
 @tf.function
 def test(img_gt, gate_gt, mode):
     img_recon, gate_recon, means, stddev, z = model(img_gt, mode)
-    img_loss, gate_loss, kl_loss = compute_loss_unsupervised(img_gt, gate_gt, img_recon, gate_recon, means, stddev, mode)
+    img_loss, gate_loss, kl_loss = compute_loss_unsupervised(img_gt, gate_gt, img_recon, gate_recon, means, stddev,
+                                                             mode)
     img_loss = tf.reduce_mean(img_loss)
     gate_loss = tf.reduce_mean(gate_loss)
     if mode == 0:
         test_loss_rec_img.update_state(img_loss)
         test_loss_rec_gate.update_state(gate_loss)
         test_loss_kl.update_state(kl_loss)
+
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '0'
 # 0 = all messages are logged (default behavior)
@@ -171,6 +183,14 @@ metrics_writer = tf.summary.create_file_writer(output_dir)
 if not os.path.isdir(output_dir):
     os.makedirs(output_dir)
 
+loss_dict = {"epochs": [],
+             "train_loss_rec_img": [],
+             "train_loss_rec_gate": [],
+             "train_loss_kl": [],
+             "test_loss_rec_img": [],
+             "test_loss_rec_gate": [],
+             "test_loss_kl": []}
+loss_list = []
 # train
 print('Start training ...')
 mode = 0
@@ -197,12 +217,32 @@ for epoch in range(epochs):
             tf.summary.scalar('test_loss_rec_img', test_loss_rec_img.result(), step=epoch)
             tf.summary.scalar('test_loss_rec_gate', test_loss_rec_gate.result(), step=epoch)
             tf.summary.scalar('test_loss_kl', test_loss_kl.result(), step=epoch)
-        print('Epoch {} | TRAIN: L_img: {}, L_gate: {}, L_kl: {}, L_tot: {} | TEST: L_img: {}, L_gate: {}, L_kl: {}, L_tot: {}'
-              .format(epoch, train_loss_rec_img.result(), train_loss_rec_gate.result(), train_loss_kl.result(),
-                      train_loss_rec_img.result()+train_loss_rec_gate.result()+train_loss_kl.result(),
-                      test_loss_rec_img.result(), test_loss_rec_gate.result(), test_loss_kl.result(),
-                      test_loss_rec_img.result() + test_loss_rec_gate.result() + test_loss_kl.result()
-                      ))
-        reset_metrics() # reset all the accumulators of metrics
+        print(
+            'Epoch {} \n| TRAIN: L_img: {}, L_gate: {}, L_kl: {}, L_tot: {} \n| TEST: L_img: {}, L_gate: {}, '
+            'L_kl: {}, L_tot: {} '
+                .format(epoch, train_loss_rec_img.result(), train_loss_rec_gate.result(), train_loss_kl.result(),
+                        train_loss_rec_img.result() + train_loss_rec_gate.result() + train_loss_kl.result(),
+                        test_loss_rec_img.result(), test_loss_rec_gate.result(), test_loss_kl.result(),
+                        test_loss_rec_img.result() + test_loss_rec_gate.result() + test_loss_kl.result()
+                        ))
 
+        loss_dict["train_loss_rec_img"].append(train_loss_rec_img.result())
+        loss_dict["train_loss_rec_gate"].append(train_loss_rec_gate.result())
+        loss_dict["train_loss_kl"].append(train_loss_kl.result())
+        loss_dict["test_loss_rec_img"].append(test_loss_rec_img.result())
+        loss_dict["test_loss_rec_gate"].append(test_loss_rec_gate.result())
+        loss_dict["test_loss_kl"].append(test_loss_kl.result())
+
+        l = [epoch,
+             train_loss_rec_img.result(),
+             train_loss_rec_gate.result(),
+             train_loss_kl.result(),
+             test_loss_rec_img.result(),
+             test_loss_rec_gate.result(),
+             train_loss_kl.result()]
+        loss_list.append(l)
+        reset_metrics()  # reset all the accumulators of metrics
+np.savetxt("training_cmvae_losses.csv", loss_list, delimiter=",", fmt='% s')
+# df = pd.DataFrame.from_dict(loss_dict)
+# df.to_csv("training_results.csv", header= False, index= False)
 print('End of training')

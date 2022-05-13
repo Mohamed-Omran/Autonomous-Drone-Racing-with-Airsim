@@ -32,7 +32,7 @@ eps = np.pi/10.0  # 18 degrees
 UAV_PITCH_RANGE = [-eps, eps]  #[-np.pi/4, np.pi/4]
 UAV_ROLL_RANGE = [-eps, eps]  #[-np.pi/4, np.pi/4]
 
-R_RANGE = [1, 8]  # in meters
+R_RANGE = [6, 12]  # in meters
 correction = 0.85
 CAM_FOV = 90.0*correction  # in degrees -- needs to be a bit smaller than 90 in fact because of cone vs. square
 
@@ -42,7 +42,7 @@ class PoseSampler:
         self.num_samples = num_samples
         self.base_path = dataset_path
         self.csv_path = os.path.join(self.base_path, 'gate_training_data.csv')
-        self.curr_idx = 0
+        self.curr_idx = 250000
         self.with_gate = with_gate
         self.client = airsim.MultirotorClient()
 
