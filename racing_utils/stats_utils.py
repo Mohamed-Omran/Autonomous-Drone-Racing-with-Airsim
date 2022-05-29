@@ -25,8 +25,8 @@ def calculate_gate_stats(predictions, poses):
     weights = np.ones(len(abs_diff[:, 0]))/len(abs_diff[:, 0])
 
     axs[0].hist(abs_diff[:, 0], bins=30, range=(0,2.0), weights=weights, density=False)
-    axs[1].hist(abs_diff[:, 1]*180/np.pi, bins=30, range=(0, np.pi/20*180/np.pi), weights=weights, density=False)
-    axs[2].hist(abs_diff[:, 2]*180/np.pi, bins=30, range=(0, np.pi/20*180/np.pi), weights=weights, density=False)
+    axs[1].hist(abs_diff[:, 1]*180/np.pi, bins=50, range=(0, np.pi/20*180/np.pi), weights=weights, density=False)
+    axs[2].hist(abs_diff[:, 2]*180/np.pi, bins=50, range=(0, np.pi/20*180/np.pi), weights=weights, density=False)
     axs[3].hist(abs_diff[:, 3]*180/np.pi, bins=50, range=(0, np.pi/4*180/np.pi), weights=weights, density=False)
 
     for idx in range(4):
@@ -46,7 +46,7 @@ def calculate_gate_stats(predictions, poses):
     # axs[3].set_xlabel(r'[$^{\circ}$]')
 
     axs[0].set_ylabel('Error Density')
-
+    plt.savefig("../figs/error_density.png")
     plt.show()
 
     print('bla')

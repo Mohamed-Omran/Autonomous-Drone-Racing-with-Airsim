@@ -13,10 +13,10 @@ import racing_models.cmvae
 import racing_utils
 from racing_utils.paths import *
 # DEFINE TESTING META PARAMETERS
-data_dir = ppr_img_data_dir
+data_dir = ws_eval_dir
 read_table = True
 latent_space_constraints = True
-weights_path = ppr_cmvae_output_dir + "/cmvae_model_45.ckpt"
+weights_path = ws_cmvae_250K_output_dir + "/cmvae_model_50.ckpt"
 
 n_z = 10
 img_res = 64
@@ -25,8 +25,8 @@ columns = 10
 rows = 10
 
 num_interp_z = 10
-idx_close = 0  #7
-idx_far = 1  #39
+idx_close = 7  #7
+idx_far = 44  #39
 
 z_range_mural = [-0.02, 0.02]
 z_num_mural = 11
@@ -44,9 +44,9 @@ os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
 images_np, raw_table = racing_utils.dataset_utils.create_test_dataset_csv(data_dir, img_res, read_table=read_table)
 print('Done with dataset')
 
-images_np = images_np[:1000,:]
-if read_table is True:
-    raw_table = raw_table[:1000,:]
+# images_np = images_np[:1000,:]
+# if read_table is True:
+#     raw_table = raw_table[:1000,:]
 
 # create model
 if latent_space_constraints is True:
@@ -86,6 +86,7 @@ for i in range(1, num_imgs_display+1):
     plt.axis('off')
     plt.imshow(img_display)
 # fig.savefig(os.path.join('D:/ppr_files/figs', 'reconstruction_results.png'))
+plt.savefig("../figs/img_recon.png")
 plt.show()
 
 # show interpolation btw two images in latent space
@@ -134,7 +135,7 @@ axs[0].set_ylabel('[meter]')
 axs[1].set_ylabel(r'[deg]')
 axs[2].set_ylabel(r'[deg]')
 axs[3].set_ylabel(r'[deg]')
-
+plt.savefig('../figs/interpolation_graph.png')
 # plot the interpolated images
 fig2 = plt.figure(figsize=(96, 96))
 columns = num_interp_z + 2
@@ -153,6 +154,7 @@ img_display = racing_utils.dataset_utils.convert_bgr2rgb(images_np[idx_far, :])
 plt.axis('off')
 plt.imshow(img_display)
 # fig2.savefig(os.path.join('D:/ppr_files/figs', 'reconstruction_interpolation_results.png'))
+plt.savefig("../figs/interpolated.png")
 plt.show()
 
 # new plot traveling through latent space
@@ -172,4 +174,5 @@ for i in range(1, z_num_mural*n_z + 1):
     plt.axis('off')
     plt.imshow(img_display)
 # fig3.savefig(os.path.join('D:/ppr_files/figs', 'z_mural.png'))
+plt.savefig("../figs/traveling_in_the_latent_space.png")
 plt.show()
